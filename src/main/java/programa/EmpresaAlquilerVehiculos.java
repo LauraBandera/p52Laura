@@ -108,7 +108,7 @@ public class EmpresaAlquilerVehiculos {
         // para que se pueda alquilar de nuevo
         int recibir = buscarVehiculoPorMatricula(v);
 
-        if (recibir != -1) {
+        if (recibir < 0) {
             v.setDisponible(true);
         }
 
