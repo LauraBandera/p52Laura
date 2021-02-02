@@ -22,6 +22,10 @@ public class EmpresaAlquilerVehiculos {
     private String nombre;
     private String paginaWeb;
     
+    //No son static por cada empresa necesita sus
+    // clintes, vehiculos y alquileres si pusiesemos static
+    // al ser de clase todas las empresas que creamos compartirían
+    // las listas tanto de clietnes, vehiculos y alquileres
     private ArrayList<Cliente> clientes;
     private ArrayList<Vehiculo> vehiculos;
     private ArrayList<VehiculoAlquilado> alquileres;
