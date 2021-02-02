@@ -89,7 +89,7 @@ public class EmpresaAlquilerVehiculos {
         // busca el vehículo a partir de la matrícula
         int vehiculo = buscarVehiculoPorMatricula(v);
 
-        if (cliente != -1 && vehiculo != -1) {
+        if (cliente < 0 && vehiculo < 0) {
             if (v.isDisponible()) {
                 v.setDisponible(false);
                 alquileres.add(new VehiculoAlquilado(c, v,
