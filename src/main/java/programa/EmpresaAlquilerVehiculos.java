@@ -6,6 +6,7 @@
 package programa;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -112,6 +113,20 @@ public class EmpresaAlquilerVehiculos {
             v.setDisponible(true);
         }
 
+    }
+ 
+
+    public void imprimirMatriculaFecha() {
+        for (int i = 0; i < alquileres.size(); i++) {
+            System.out.println("El vehículo con mátricula " + alquileres.get(i).getVehiculo().getMatricula() +
+            		" debe entregarse con fecha de " + entregaVehiculos(alquileres.get(i)));
+        }
+    }
+
+    //Metodo para averiguar la fecha que hay que devolver el vehiculo
+    private LocalDate entregaVehiculos(VehiculoAlquilado v) {
+        LocalDate fechaAlquiler = v.getFechaAlquiler().plus(v.getTotalDiasAlquiler(), ChronoUnit.DAYS);
+        return fechaAlquiler;
     }
 
     // incluir métodos ‘get’,‘set’ 
