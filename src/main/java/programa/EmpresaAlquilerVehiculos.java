@@ -6,11 +6,14 @@
 package programa;
 
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Scanner;
 
 /**
  *
@@ -30,7 +33,9 @@ public class EmpresaAlquilerVehiculos {
     private ArrayList<Cliente> clientes;
     private ArrayList<Vehiculo> vehiculos;
     private ArrayList<VehiculoAlquilado> alquileres;
+    private ArrayList<VehiculoAlquilado> alquileresTerminados;
 
+    Scanner s = new Scanner(System.in);
     
     EmpresaAlquilerVehiculos(String cif, String nombre, String paginaWeb) {
         this.cif = cif;
@@ -56,7 +61,19 @@ public class EmpresaAlquilerVehiculos {
         Comparator<Cliente> criterio = (o1, o2) -> o1.getNif().compareTo(o2.getNif());
         return Collections.binarySearch(clientes, aBuscar, criterio);
     }
-
+    
+    private void ordenarPorNombre(){
+        Comparator<Cliente> criterio = (o1, o2) -> o1.getNombre().compareTo(o2.getNombre());
+        Collections.sort(clientes, criterio);
+    }
+    
+    public int buscarClientePorNombre(Cliente aBuscar) {
+        this.ordenarPorNombre();
+        System.out.println("Hemos ordenado por Nombre");
+        Comparator<Cliente> criterio = (o1, o2) -> o1.getNombre().compareTo(o2.getNombre());
+        return Collections.binarySearch(clientes, aBuscar, criterio);
+    }
+    
     
     public void imprimirClientes() {
         clientes.forEach(item -> System.out.print(item.getNif() + "\t" + item.getNombre()));
@@ -69,6 +86,19 @@ public class EmpresaAlquilerVehiculos {
     private void ordenarPorMatricula(){
         Comparator<Vehiculo> criterio = (v1, v2) -> v1.getMatricula().compareTo(v2.getMatricula());
         Collections.sort(vehiculos, criterio);
+    }
+    
+    private void ordenarPorTarifa(){
+        //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
+        Comparator<Vehiculo> criterio = (v1, v2) -> (int) (v1.getTarifa() - v2.getTarifa()); 
+        Collections.sort(vehiculos, criterio);
+    }
+    
+    public int buscarVehiculoPorTarifa(Vehiculo v) {
+        this.ordenarPorTarifa();
+        System.out.println("Hemos ordenado por matrícula");
+        Comparator<Vehiculo> criterio = (v1, v2) -> (int) (v1.getTarifa() - v2.getTarifa());
+        return Collections.binarySearch(vehiculos, v, criterio);
     }
     
     public int buscarVehiculoPorMatricula(Vehiculo v) {
@@ -84,7 +114,7 @@ public class EmpresaAlquilerVehiculos {
         }
     }
 
-    public boolean alquilarVehiculo(Cliente c, Vehiculo v, int dias) {
+    public boolean alquilarVehiculo(Cliente c, Vehiculo v, int dias, LocalDate fecha) {
         // busca el cliente a partir del nif
         int cliente = buscarClientePorNIF(c);
         // busca el vehículo a partir de la matrícula
@@ -92,9 +122,9 @@ public class EmpresaAlquilerVehiculos {
 
         if (cliente < 0 && vehiculo < 0) {
             if (v.isDisponible()) {
+                //lo dejamos como alquilado para evitar posibles conflictos
                 v.setDisponible(false);
-                alquileres.add(new VehiculoAlquilado(c, v,
-                                LocalDate.now(), dias));
+                alquileres.add(new VehiculoAlquilado(c, v, fecha, dias));
                 
                 return true; 
             }
@@ -115,7 +145,35 @@ public class EmpresaAlquilerVehiculos {
 
     }
  
+    private void ordenarAlquilerFecha(){
+        //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
+        Comparator<VehiculoAlquilado> criterio = (v1, v2) -> v1.getFechaAlquiler().compareTo(v2.getFechaAlquiler()); 
+        Collections.sort(alquileres, criterio);
+    }
+    
+    private void ordenarAlquilerNif(){
+        //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
+        Comparator<VehiculoAlquilado> criterio = (v1, v2) -> v1.getCliente().getNif().compareTo(v2.getCliente().getNif()); 
+        Collections.sort(alquileres, criterio);
+    }
 
+    private void ordenarAlquilerMatricula(){
+        //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
+        Comparator<VehiculoAlquilado> criterio = (v1, v2) -> v1.getVehiculo().getMatricula().compareTo(v2.getVehiculo().getMatricula());
+        Collections.sort(alquileres, criterio);
+    }
+    
+    private ArrayList busquedaAlquileresClientesNIF(Cliente c){
+        ArrayList<VehiculoAlquilado> listaClienteNIF = new ArrayList<>();
+        for(VehiculoAlquilado va : alquileres){
+            if(va.getCliente().getNif().equals(c.getNif())){
+                listaClienteNIF.add(va);
+            }
+        }
+        
+        return listaClienteNIF;
+    }
+    
     public void imprimirMatriculaFecha() {
         for (int i = 0; i < alquileres.size(); i++) {
             System.out.println("El vehículo con mátricula " + alquileres.get(i).getVehiculo().getMatricula() +
@@ -127,6 +185,23 @@ public class EmpresaAlquilerVehiculos {
     private LocalDate entregaVehiculos(VehiculoAlquilado v) {
         LocalDate fechaAlquiler = v.getFechaAlquiler().plus(v.getTotalDiasAlquiler(), ChronoUnit.DAYS);
         return fechaAlquiler;
+    }
+    
+    private void finalizarAlquiler(VehiculoAlquilado alquiler){
+        alquileresTerminados.add(alquiler);
+        alquileres.remove(alquiler);
+        this.recibirVehiculo(alquiler.getVehiculo());
+    }
+    
+    private void imprimirAlquileresFinalizado(){
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        alquileresTerminados.forEach(item -> System.out.print(item.getCliente().getNif() 
+                + "**" + item.getVehiculo().getMatricula() + "**Desde /" + item.getFechaAlquiler().format(formato) 
+                + item.getFechaAlquiler().plus(item.getTotalDiasAlquiler(), ChronoUnit.DAYS).format(formato)));
+    }
+    
+    public double ganancia(VehiculoAlquilado va){
+        return va.getVehiculo().getTarifa()*va.getTotalDiasAlquiler();
     }
 
     // incluir métodos ‘get’,‘set’ 
