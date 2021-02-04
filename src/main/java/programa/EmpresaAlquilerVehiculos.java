@@ -6,7 +6,6 @@
 package programa;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class EmpresaAlquilerVehiculos {
     private String cif;
     private String nombre;
     private String paginaWeb;
-    
+
     //No son static por cada empresa necesita sus
     // clintes, vehiculos y alquileres si pusiesemos static
     // al ser de clase todas las empresas que creamos compartirían
@@ -36,71 +35,72 @@ public class EmpresaAlquilerVehiculos {
     private ArrayList<VehiculoAlquilado> alquileresTerminados;
 
     Scanner s = new Scanner(System.in);
-    
+
     EmpresaAlquilerVehiculos(String cif, String nombre, String paginaWeb) {
         this.cif = cif;
         this.nombre = nombre;
         this.paginaWeb = paginaWeb;
-        this.clientes = new ArrayList<>(); 
+        this.clientes = new ArrayList<>();
         this.vehiculos = new ArrayList<>();
         this.alquileres = new ArrayList<>();
+        this.alquileresTerminados = new ArrayList<>();
     }
 
     public void registrarCliente(Cliente nuevo) {
         this.clientes.add(nuevo);
     }
 
-    private void ordenarPorNif(){
+    private void ordenarPorNif() {
         Comparator<Cliente> criterio = (o1, o2) -> o1.getNif().compareTo(o2.getNif());
         Collections.sort(clientes, criterio);
     }
-    
+
     public int buscarClientePorNIF(Cliente aBuscar) {
         this.ordenarPorNif();
         System.out.println("Hemos ordenado por NIF");
         Comparator<Cliente> criterio = (o1, o2) -> o1.getNif().compareTo(o2.getNif());
         return Collections.binarySearch(clientes, aBuscar, criterio);
     }
-    
-    private void ordenarPorNombre(){
+
+    //METODO NUEVO
+    public void ordenarPorNombre() {
         Comparator<Cliente> criterio = (o1, o2) -> o1.getNombre().compareTo(o2.getNombre());
         Collections.sort(clientes, criterio);
     }
-    
+
     public int buscarClientePorNombre(Cliente aBuscar) {
         this.ordenarPorNombre();
         System.out.println("Hemos ordenado por Nombre");
         Comparator<Cliente> criterio = (o1, o2) -> o1.getNombre().compareTo(o2.getNombre());
         return Collections.binarySearch(clientes, aBuscar, criterio);
     }
-    
-    
+
     public void imprimirClientes() {
-        clientes.forEach(item -> System.out.print(item.getNif() + "\t" + item.getNombre()));
+        clientes.forEach(item -> System.out.print(item.getNif() + "\t" + item.getNombre()+ "\n"));
     }
 
     public void registrarVehiculo(Vehiculo nuevo) {
         vehiculos.add(nuevo);
     }
 
-    private void ordenarPorMatricula(){
+    public void ordenarPorMatricula() {
         Comparator<Vehiculo> criterio = (v1, v2) -> v1.getMatricula().compareTo(v2.getMatricula());
         Collections.sort(vehiculos, criterio);
     }
-    
-    private void ordenarPorTarifa(){
+
+    public void ordenarPorTarifa() {
         //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
-        Comparator<Vehiculo> criterio = (v1, v2) -> (int) (v1.getTarifa() - v2.getTarifa()); 
+        Comparator<Vehiculo> criterio = (v1, v2) -> (int) (v1.getTarifa() - v2.getTarifa());
         Collections.sort(vehiculos, criterio);
     }
-    
+
     public int buscarVehiculoPorTarifa(Vehiculo v) {
         this.ordenarPorTarifa();
         System.out.println("Hemos ordenado por matrícula");
         Comparator<Vehiculo> criterio = (v1, v2) -> (int) (v1.getTarifa() - v2.getTarifa());
         return Collections.binarySearch(vehiculos, v, criterio);
     }
-    
+
     public int buscarVehiculoPorMatricula(Vehiculo v) {
         this.ordenarPorMatricula();
         System.out.println("Hemos ordenado por matrícula");
@@ -120,16 +120,16 @@ public class EmpresaAlquilerVehiculos {
         // busca el vehículo a partir de la matrícula
         int vehiculo = buscarVehiculoPorMatricula(v);
 
-        if (cliente < 0 && vehiculo < 0) {
+        if (cliente >= 0 && vehiculo >= 0) {
             if (v.isDisponible()) {
                 //lo dejamos como alquilado para evitar posibles conflictos
                 v.setDisponible(false);
                 alquileres.add(new VehiculoAlquilado(c, v, fecha, dias));
-                
-                return true; 
+
+                return true;
             }
         }
-        return false; 
+        return false;
     }
 
     public void recibirVehiculo(Vehiculo v) {
@@ -144,64 +144,75 @@ public class EmpresaAlquilerVehiculos {
         }
 
     }
- 
-    private void ordenarAlquilerFecha(){
+
+    public void ordenarAlquilerFecha() {
         //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
-        Comparator<VehiculoAlquilado> criterio = (v1, v2) -> v1.getFechaAlquiler().compareTo(v2.getFechaAlquiler()); 
-        Collections.sort(alquileres, criterio);
-    }
-    
-    private void ordenarAlquilerNif(){
-        //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
-        Comparator<VehiculoAlquilado> criterio = (v1, v2) -> v1.getCliente().getNif().compareTo(v2.getCliente().getNif()); 
+        Comparator<VehiculoAlquilado> criterio = (v1, v2) -> v1.getFechaAlquiler().compareTo(v2.getFechaAlquiler());
         Collections.sort(alquileres, criterio);
     }
 
-    private void ordenarAlquilerMatricula(){
+    public void ordenarAlquilerNif() {
+        //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
+        Comparator<VehiculoAlquilado> criterio = (v1, v2) -> v1.getCliente().getNif().compareTo(v2.getCliente().getNif());
+        Collections.sort(alquileres, criterio);
+    }
+
+    public void ordenarAlquilerMatricula() {
         //Ponemos el cast de int porque solo nos interesa saber si es número positivo, negativo o 0
         Comparator<VehiculoAlquilado> criterio = (v1, v2) -> v1.getVehiculo().getMatricula().compareTo(v2.getVehiculo().getMatricula());
         Collections.sort(alquileres, criterio);
     }
-    
-    private ArrayList busquedaAlquileresClientesNIF(Cliente c){
+
+    public ArrayList busquedaAlquileresClientesNIF(Cliente c) {
         ArrayList<VehiculoAlquilado> listaClienteNIF = new ArrayList<>();
-        for(VehiculoAlquilado va : alquileres){
-            if(va.getCliente().getNif().equals(c.getNif())){
+        for (VehiculoAlquilado va  : alquileres) {
+            if (va.getCliente().getNif().equals(c.getNif())) {
                 listaClienteNIF.add(va);
             }
         }
-        
+
         return listaClienteNIF;
     }
-    
+
     public void imprimirMatriculaFecha() {
         for (int i = 0; i < alquileres.size(); i++) {
-            System.out.println("El vehículo con mátricula " + alquileres.get(i).getVehiculo().getMatricula() +
-            		" debe entregarse con fecha de " + entregaVehiculos(alquileres.get(i)));
+            System.out.println("El vehículo con mátricula " + alquileres.get(i).getVehiculo().getMatricula()
+                    + " debe entregarse con fecha de " + entregaVehiculos(alquileres.get(i)));
         }
     }
 
     //Metodo para averiguar la fecha que hay que devolver el vehiculo
-    private LocalDate entregaVehiculos(VehiculoAlquilado v) {
+    public LocalDate entregaVehiculos(VehiculoAlquilado v) {
         LocalDate fechaAlquiler = v.getFechaAlquiler().plus(v.getTotalDiasAlquiler(), ChronoUnit.DAYS);
         return fechaAlquiler;
     }
-    
-    private void finalizarAlquiler(VehiculoAlquilado alquiler){
+
+    //METODO NUEVO
+    public void finalizarAlquiler(VehiculoAlquilado alquiler) {
         alquileresTerminados.add(alquiler);
         alquileres.remove(alquiler);
         this.recibirVehiculo(alquiler.getVehiculo());
     }
-    
-    private void imprimirAlquileresFinalizado(){
+
+    //METODO NUEVO
+    public void imprimirAlquileresFinalizado() {
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        alquileresTerminados.forEach(item -> System.out.print(item.getCliente().getNif() 
-                + "**" + item.getVehiculo().getMatricula() + "**Desde /" + item.getFechaAlquiler().format(formato) 
-                + item.getFechaAlquiler().plus(item.getTotalDiasAlquiler(), ChronoUnit.DAYS).format(formato)));
+        alquileresTerminados.forEach(item -> System.out.print(item.getCliente().getNif()
+                + "**" + item.getVehiculo().getMatricula() + "**Desde /" + item.getFechaAlquiler().format(formato)
+                + " hasta " + item.getFechaAlquiler().plus(item.getTotalDiasAlquiler(), ChronoUnit.DAYS).format(formato) + ". ** \n"
+                + "Ganancia: " + this.ganancia(item) + " euros.\n"));
     }
     
-    public double ganancia(VehiculoAlquilado va){
-        return va.getVehiculo().getTarifa()*va.getTotalDiasAlquiler();
+    //METODO NUEVO
+    public void imprimirAlquileres() {
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        alquileres.forEach(item -> System.out.print(item.getCliente().getNif()
+                + "**" + item.getVehiculo().getMatricula() + "**Desde /" + item.getFechaAlquiler().format(formato)
+                + " hasta " + item.getFechaAlquiler().plus(item.getTotalDiasAlquiler(), ChronoUnit.DAYS).format(formato) + "\n"));
+    }
+
+    public double ganancia(VehiculoAlquilado va) {
+        return va.getVehiculo().getTarifa() * va.getTotalDiasAlquiler();
     }
 
     // incluir métodos ‘get’,‘set’ 
@@ -297,6 +308,5 @@ public class EmpresaAlquilerVehiculos {
         }
         return true;
     }
-    
-    
+
 }
