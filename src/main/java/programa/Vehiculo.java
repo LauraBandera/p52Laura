@@ -7,7 +7,7 @@ package programa;
 
 /**
  *
- * @author redu2
+ * @author LauraBandera
  */
 public class Vehiculo {
 
