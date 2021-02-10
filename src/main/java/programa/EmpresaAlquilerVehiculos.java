@@ -191,7 +191,11 @@ public class EmpresaAlquilerVehiculos {
     public void finalizarAlquiler(VehiculoAlquilado alquiler) {
         alquileresTerminados.add(alquiler);
         alquileres.remove(alquiler);
-        this.recibirVehiculo(alquiler.getVehiculo());
+        //this.recibirVehiculo(alquiler.getVehiculo());
+        alquiler.getVehiculo().setDisponible(true);
+        
+        //Calcular los días reales
+        
     }
 
     //METODO NUEVO

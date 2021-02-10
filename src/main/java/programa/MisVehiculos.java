@@ -55,9 +55,11 @@ public class MisVehiculos {
         easydrive.imprimirAlquileresFinalizado();
         System.out.println("-------------------");
         //Añadimos 5 alquileres.
-        easydrive.alquilarVehiculo(new Cliente("X5618927C",
-                "Juan", "González López"), new Vehiculo("4060 TUR", "Skoda",
-                "Fabia", "Blanco", 90.0, false), 2, LocalDate.of(2021, Month.MARCH, 8));
+        easydrive.alquilarVehiculo(easydrive.getClientes().get(0), 
+                easydrive.getVehiculos().get(0), 
+                2, LocalDate.of(2021, Month.MARCH, 8));
+        //Cambiar todos como el anterior.
+        /*-----------------------------------------------*/
         easydrive.alquilarVehiculo(new Cliente("X5613927C",
                 "Pepe", "González Romero"), new Vehiculo("4070 DEP", "Ford", "Mustang",
                 "Rojo", 150.0, true), 10, LocalDate.of(2021, Month.FEBRUARY, 6));
